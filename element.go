@@ -49,6 +49,8 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
         sort.Strings(aClasses)
         sort.Strings(bClasses)
 
+        if hasRepetition(bClasses) > 0 { return false }
+
         if len(aClasses) < len(bClasses) {
             return false
         }
@@ -62,8 +64,11 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
             }
         }
 
-        if len(aClasses) > len(bClasses) && count == len(bClasses) {
-            return true
+        if len(aClasses) > len(bClasses) {
+            if n := hasRepetition(aClasses); n > 0 && count == len(bClasses) + n {
+                return true
+            }
+            if count == len(bClasses) { return true }
         }
 
         if len(aClasses) == len(bClasses) && count == len(aClasses) {
@@ -71,4 +76,17 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
         }
     }
     return false
+}
+
+func hasRepetition(val []string) int {
+    count := 0
+    for i:=0; i < len(val); i++ {
+        for j:=i+1; j < len(val); j++ {
+            if val[i] == val[j] {
+                count += 1
+            }
+        }
+    }
+    if count == len(val) { return count-1 }
+    return count
 }

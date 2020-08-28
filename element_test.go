@@ -68,6 +68,13 @@ func TestContainsClass(t *testing.T) {
         // returns false
         {
             []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "Red"},
+            false,
+        },
+        {
+            []html.Attribute{
                 {Namespace: "", Key: "id", Val: "red"},
             },
             html.Attribute{Namespace: "", Key: "class", Val: "red"},
@@ -124,7 +131,42 @@ func TestContainsClass(t *testing.T) {
             html.Attribute{Namespace: "", Key: "id", Val: "red"},
             false,
         },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red red red"},
+            false,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green blue red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red red"},
+            false,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green blue"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red red"},
+            false,
+        },
         // temp bugs, need to fix them
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green red green"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
+            true,
+        },
         {
             []html.Attribute{
                 {Namespace: "", Key: "class", Val: "red green red"},
@@ -139,18 +181,36 @@ func TestContainsClass(t *testing.T) {
             html.Attribute{Namespace: "", Key: "class", Val: "red"},
             true,
         },
-        {
-            []html.Attribute{
-                {Namespace: "", Key: "class", Val: "red"},
-            },
-            html.Attribute{Namespace: "", Key: "class", Val: "red red red"},
-            true,
-        },
     }
 
     for i, test := range cases {
         if got := containsClass(test.attrs, test.attr); got != test.expectedOut {
             t.Errorf("%d) got=%t, expected=%t\n", i+1, got, test.expectedOut)
+        }
+    }
+}
+
+func TestHasRepetition(t *testing.T) {
+    cases := []struct {
+        val []string
+        expectedOut int
+    }{
+        {
+            []string{"red", "green", "red"},
+            1,
+        },
+        {
+            []string{"red", "red", "red"},
+            2,
+        },
+        {
+            []string{"red", "green", "red", "green"},
+            2,
+        },
+    }
+    for i, test := range cases {
+        if got := hasRepetition(test.val); got != test.expectedOut {
+            t.Errorf("%d) got=%d, expected=%d\n", i+1, got, test.expectedOut)
         }
     }
 }
