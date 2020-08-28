@@ -34,44 +34,40 @@ func (e *Element) compareTypeAndData(e2 Element) bool {
     return true
 }
 
-func containsClass(attrs1, attrs2 []html.Attribute) bool {
-    for _, attr := range attrs1 {
+func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
+    for _, attr := range attributes {
         if attr.Key != "class" {
             continue
         }
-        for _, attr2 := range attrs2 {
-            if attr2.Key != "class" {
-                continue
-            }
+        if attribute.Key != "class" {
+            return false
+        }
 
-            receiverClasses := strings.Split(attr.Val, " ")
-            classes := strings.Split(attr2.Val, " ")
-            
-            sort.Strings(receiverClasses)
-            sort.Strings(classes)
+        aClasses := strings.Split(attr.Val, " ")
+        bClasses := strings.Split(attribute.Val, " ")
+        
+        sort.Strings(aClasses)
+        sort.Strings(bClasses)
 
-            if len(receiverClasses) < len(classes) {
-                return false
-            }
+        if len(aClasses) < len(bClasses) {
+            return false
+        }
 
-            count := 0
-            for _, str := range receiverClasses {
-                for _, str2 := range classes {
-                    if str == str2 {
-                        count += 1
-                    }
+        count := 0
+        for _, str := range aClasses {
+            for _, str2 := range bClasses {
+                if str == str2 {
+                    count += 1
                 }
             }
+        }
 
-            if len(receiverClasses) > len(classes) &&
-            count == len(classes) {
-                    return true
-            }
+        if len(aClasses) > len(bClasses) && count == len(bClasses) {
+            return true
+        }
 
-            if len(receiverClasses) == len(classes) &&
-            count == len(receiverClasses) {
-                    return true
-            }
+        if len(aClasses) == len(bClasses) && count == len(aClasses) {
+            return true
         }
     }
     return false
