@@ -21,8 +21,16 @@ func GetRootElement(r io.Reader) (*Element, error) {
     return &Element{root.FirstChild}, nil
 }
 
+//func (e Element) isEqualTo(e2 Element) bool {
+//    if compareTypeAndData(e, e2) == false {
+//        return false
+//    }
+//    if containsClass(
+//    return true
+//}
+
 // Compares html.Node.Type and html.Node.Data of two elements
-func (e *Element) compareTypeAndData(e2 Element) bool {
+func compareTypeAndData(e, e2 Element) bool {
     if e.node.Type != e2.node.Type {
         return false
     }
@@ -36,10 +44,10 @@ func (e *Element) compareTypeAndData(e2 Element) bool {
 
 func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
     for _, attr := range attributes {
-        if attr.Key != "class" {
+        if strings.ToLower(attr.Key) != "class" {
             continue
         }
-        if attribute.Key != "class" {
+        if strings.ToLower(attribute.Key) != "class" {
             return false
         }
 
@@ -64,16 +72,16 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
             }
         }
 
-        if len(aClasses) > len(bClasses) {
-            if n := hasRepetition(aClasses); n > 0 && count == len(bClasses) + n {
-                return true
-            }
-            if count == len(bClasses) { return true }
-        }
-
         if len(aClasses) == len(bClasses) && count == len(aClasses) {
             return true
         }
+
+        // if len(aClasses) > len(bClasses)
+        if n := hasRepetition(aClasses); n > 0 && count == len(bClasses) + n {
+            return true
+        }
+        if count == len(bClasses) { return true }
+
     }
     return false
 }
@@ -87,6 +95,10 @@ func hasRepetition(val []string) int {
             }
         }
     }
-    if count == len(val) { return count-1 }
+
+    if count > 2 {
+        if count == len(val) - (len(val) - count) { return count-1 }
+    }
+
     return count
 }

@@ -16,6 +16,13 @@ func TestContainsClass(t *testing.T) {
         // returns true
         {
             []html.Attribute{
+                {Namespace: "", Key: "claSs", Val: "red"},
+            },
+            html.Attribute{Namespace: "", Key: "Class", Val: "red"},
+            true,
+        },
+        {
+            []html.Attribute{
                 {Namespace: "", Key: "class", Val: "red"},
             },
             html.Attribute{Namespace: "", Key: "class", Val: "red"},
@@ -63,6 +70,41 @@ func TestContainsClass(t *testing.T) {
                 {Namespace: "", Key: "class", Val: "blue green"},
             },
             html.Attribute{Namespace: "", Key: "class", Val: "blue"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green red green"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red red red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red"},
+            true,
+        },
+        {
+            []html.Attribute{
+                {Namespace: "", Key: "class", Val: "red green blue red red"},
+            },
+            html.Attribute{Namespace: "", Key: "class", Val: "red"},
             true,
         },
         // returns false
@@ -153,34 +195,6 @@ func TestContainsClass(t *testing.T) {
             false,
         },
         // temp bugs, need to fix them
-        {
-            []html.Attribute{
-                {Namespace: "", Key: "class", Val: "red green red green"},
-            },
-            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
-            true,
-        },
-        {
-            []html.Attribute{
-                {Namespace: "", Key: "class", Val: "red green red"},
-            },
-            html.Attribute{Namespace: "", Key: "class", Val: "red green"},
-            true,
-        },
-        {
-            []html.Attribute{
-                {Namespace: "", Key: "class", Val: "red green red"},
-            },
-            html.Attribute{Namespace: "", Key: "class", Val: "red"},
-            true,
-        },
-        {
-            []html.Attribute{
-                {Namespace: "", Key: "class", Val: "red red red"},
-            },
-            html.Attribute{Namespace: "", Key: "class", Val: "red"},
-            true,
-        },
     }
 
     for i, test := range cases {
@@ -196,6 +210,18 @@ func TestHasRepetition(t *testing.T) {
         expectedOut int
     }{
         {
+            []string{"red", "green", "blue"},
+            0,
+        },
+        {
+            []string{"red", "green", "blue", "red", "red"},
+            2,
+        },
+        {
+            []string{"red", "green", "blue", "red", "red", "green"},
+            3,
+        },
+        {
             []string{"red", "green", "red"},
             1,
         },
@@ -207,7 +233,16 @@ func TestHasRepetition(t *testing.T) {
             []string{"red", "green", "red", "green"},
             2,
         },
+        {
+            []string{"red"},
+            0,
+        },
+        {
+            []string{},
+            0,
+        },
     }
+
     for i, test := range cases {
         if got := hasRepetition(test.val); got != test.expectedOut {
             t.Errorf("%d) got=%d, expected=%d\n", i+1, got, test.expectedOut)
@@ -284,7 +319,7 @@ func TestCompareTypeAndData(t *testing.T) {
     }
 
     for i, test := range cases {
-        if got := test.e.compareTypeAndData(test.e2); got != test.expectedOut {
+        if got := compareTypeAndData(test.e, test.e2); got != test.expectedOut {
             t.Errorf("%d) got=%t, expected=%t\n", i+1, got, test.expectedOut)
         }
     }
