@@ -9,7 +9,7 @@ var _ = fmt.Println
 
 
 func (e Element) FindAllChildren(recursive bool, limit int) []Element {
-    var elements []Element = make([]Element, 0)
+    var elements []Element
 
     temp := e.node.FirstChild
 
@@ -29,13 +29,11 @@ func (e Element) FindAllChildren(recursive bool, limit int) []Element {
             }
             if temp.Type == html.ElementNode {
                 elements = append(elements, Element{temp})
+                limit -= 1
             }
             temp = temp.NextSibling
-            limit -= 1
         }
     }
-    fmt.Println(len(elements), cap(elements))
-    fmt.Println(elements)
 
     return elements
 }

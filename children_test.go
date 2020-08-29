@@ -5,6 +5,7 @@ import (
     "golang.org/x/net/html"
     //"io"
     "strings"
+    "fmt"
 )
 
 
@@ -66,26 +67,41 @@ func TestFindAllChildren(t *testing.T) {
             Element{root.node.LastChild}.FindAllChildren(false, 2),
             expectedOutput[:2],
         },
+        {
+            // gets 5 children of body, should return 3
+            Element{root.node.LastChild}.FindAllChildren(false, 5),
+            expectedOutput[:3],
+        },
+        {
+            // gets 1 child of body
+            Element{root.node.LastChild}.FindAllChildren(false, 1),
+            expectedOutput[:1],
+        },
+        {
+            // gets all children of body, should return all
+            Element{root.node.LastChild}.FindAllChildren(false, -1),
+            expectedOutput[:3],
+        },
     }
 
     for i, test := range cases {
-        if len(test.got) != len(test.elements) {
-            t.Errorf("case#%d, len(got)=%d != len(expectedOut)=%d\n", i+1,
-                len(test.got), len(test.elements))
-        }
-
-        for j, element := range test.elements {
-            if equal := compareTypeAndData(element, test.got[j]); equal == false {
-                t.Errorf("case#%d, %d) either html.Node.Type or html.Node.Data of two elements are not equal\n", i+1, j)
+        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
+            if len(test.got) != len(test.elements) {
+                t.Fatalf("len(got)=%d != len(expectedOut)=%d\n", len(test.got), len(test.elements))
             }
 
-            if contains := containsClass(test.got[j].node.Attr, element.node.Attr[0]);
-            contains == false {
-                t.Errorf("case#%d, %d) got doesn't contain necessary class names\n",
-                i+1, j) 
+            for j, element := range test.elements {
+                equal := compareTypeAndData(element, test.got[j]); 
+                if equal == false {
+                    t.Errorf("%d) either html.Node.Type or html.Node.Data of two elements are not equal\n", j)
+                }
+
+                contains := containsClass(test.got[j].node.Attr, element.node.Attr[0])
+                if contains == false {
+                    t.Errorf("%d) got doesn't contain necessary class names\n", j) 
+                }
             }
-        }
-    
+        }) 
     }
 
 }
