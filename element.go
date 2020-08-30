@@ -11,6 +11,7 @@ type Element struct {
     node *html.Node
 }
 
+// Returns Element struct that containts pointer to <html> tag as a html.Node
 func GetRootElement(r io.Reader) (*Element, error) {
     root, err := html.Parse(r)
 
@@ -20,14 +21,6 @@ func GetRootElement(r io.Reader) (*Element, error) {
 
     return &Element{root.FirstChild}, nil
 }
-
-//func (e Element) isEqualTo(e2 Element) bool {
-//    if compareTypeAndData(e, e2) == false {
-//        return false
-//    }
-//    if containsClass(
-//    return true
-//}
 
 // Compares html.Node.Type and html.Node.Data of two elements
 func compareTypeAndData(e, e2 Element) bool {
@@ -86,6 +79,7 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
     return false
 }
 
+// Checks if []string has repetitive strings and returns the repetition number
 func hasRepetition(val []string) int {
     count := 0
     for i:=0; i < len(val); i++ {
