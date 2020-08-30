@@ -35,7 +35,7 @@ func (e Element) FindChildrenByClass(class string, limit int) []Element {
         if limit == 0 {
             break
         }
-        contains := containsClass(temp.Attr, html.Attribute{"", "class", class})
+        contains := containsSel(temp.Attr, html.Attribute{"", "class", class}, "class")
         if temp.Type == html.ElementNode && contains {
             elements = append(elements, Element{temp})
             limit -= 1
@@ -51,7 +51,6 @@ func (e Element) FindChildrenByElement(element string, limit int) []Element {
     
     temp := e.node.FirstChild
 
-    //fmt.Printf("%+v\n", e.node)
     for temp != nil {
         if limit == 0 {
             break

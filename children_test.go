@@ -120,7 +120,7 @@ func TestFindAllChildren(t *testing.T) {
                     t.Errorf("%d) either html.Node.Type or html.Node.Data of two elements are not equal\n", j)
                 }
 
-                contains := containsClass(test.got[j].node.Attr, element.node.Attr[0])
+                contains := containsSel(test.got[j].node.Attr, element.node.Attr[0], element.node.Attr[0].Key) 
                 if contains == false {
                     t.Errorf("%d) got doesn't contain necessary class names\n", j) 
                 }
@@ -229,7 +229,7 @@ func TestFindChildrenByClass(t *testing.T) {
                     t.Errorf("%d) either html.Node.Type or html.Node.Data of two elements are not equal\n", j)
                 }
 
-                contains := containsClass(test.got[j].node.Attr, element.node.Attr[0])
+                contains := containsSel(test.got[j].node.Attr, element.node.Attr[0], element.node.Attr[0].Key)
                 if contains == false {
                     t.Errorf("%d) got doesn't contain necessary class names\n", j) 
                 }

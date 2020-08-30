@@ -35,12 +35,13 @@ func compareTypeAndData(e, e2 Element) bool {
     return true
 }
 
-func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
+// should be used only for class and id
+func containsSel(attributes []html.Attribute, attribute html.Attribute, attrKey string) bool {
     for _, attr := range attributes {
-        if strings.ToLower(attr.Key) != "class" {
+        if strings.ToLower(attr.Key) != strings.ToLower(attrKey) {
             continue
         }
-        if strings.ToLower(attribute.Key) != "class" {
+        if strings.ToLower(attribute.Key) != strings.ToLower(attrKey) {
             return false
         }
 
@@ -59,7 +60,7 @@ func containsClass(attributes []html.Attribute, attribute html.Attribute) bool {
         count := 0
         for _, str := range aClasses {
             for _, str2 := range bClasses {
-                if str == str2 {
+                if strings.ToLower(str) == strings.ToLower(str2) {
                     count += 1
                 }
             }
@@ -93,6 +94,5 @@ func hasRepetition(val []string) int {
     if count > 2 {
         if count == len(val) - (len(val) - count) { return count-1 }
     }
-
     return count
 }
