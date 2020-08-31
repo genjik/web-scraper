@@ -72,6 +72,8 @@ func TestFindAllChildren(t *testing.T) {
     }{
         {
             // gets nothing 
+            //root.FindChildrenByElement("body", 1)[0].
+            //    FindAllChildren(0),
             Element{root.node.LastChild}.FindAllChildren(0),
             expectedOutputA[:0],
         },
