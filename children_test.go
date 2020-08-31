@@ -229,7 +229,7 @@ func TestFindChildrenByClass(t *testing.T) {
                     t.Errorf("%d) either html.Node.Type or html.Node.Data of two elements are not equal\n", j)
                 }
 
-                contains := containsSel(test.got[j].node.Attr, element.node.Attr[0], element.node.Attr[0].Key)
+                contains := containsSel(test.got[j].node.Attr, element.node.Attr[0], "class") 
                 if contains == false {
                     t.Errorf("%d) got doesn't contain necessary class names\n", j) 
                 }
@@ -338,6 +338,91 @@ func TestFindChildrenByElement(t *testing.T) {
                 equal := compareTypeAndData(element, test.got[j]); 
                 if equal == false {
                     t.Errorf("%d) either html.Node.Type or html.Node.Data of two elements are not equal\n", j)
+                }
+            }
+        }) 
+    }
+}
+
+
+// FindChildById
+var expectedOutputD []Element = []Element{
+    {
+        &html.Node{
+            Type: html.ElementNode,
+            Data: "div",
+            Attr: []html.Attribute{
+                {Namespace: "", Key: "id", Val: "special"},
+            },
+        },
+    },
+    {
+        &html.Node{
+            Type: html.ElementNode,
+            Data: "span",
+            Attr: []html.Attribute{
+                {Namespace: "", Key: "id", Val: "also-special"},
+            },
+        },
+    },
+}
+
+func TestFindChildById(t *testing.T) {
+    r := strings.NewReader(`
+    <html>
+        <head></head>
+        <body>
+            <div id="special" class="red"></div>
+            <div class="green"></div>
+            <div class="red"></div>
+            <span id="also-special"></span>
+            <div class="red"></div>
+        </body>
+    </html>
+    `)
+    root, _ := GetRootElement(r)
+
+    cases := []struct{
+        got Element
+        elements []Element
+    }{
+        { 
+            Element{root.node.LastChild}.FindChildById("nothing"),
+            expectedOutputD[:0],
+        },
+        {
+            Element{root.node.LastChild}.FindChildById("green"),
+            expectedOutputD[:0],
+        },
+        {
+            Element{root.node.LastChild}.FindChildById("special"),
+            expectedOutputD[:1],
+        },
+        {
+            Element{root.node.LastChild}.FindChildById("also-special"),
+            expectedOutputD[1:2],
+        },
+        {
+            Element{root.node.LastChild}.FindChildById("special also-special"),
+            expectedOutputD[:0],
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
+            if test.got == (Element{}) && len(test.elements) > 0 {
+                t.Fatalf("got=nil, expectedOut != nil\n")
+            }
+
+            for _, element := range test.elements {
+                equal := compareTypeAndData(element, test.got); 
+                if equal == false {
+                    t.Errorf("Either html.Node.Type or html.Node.Data of two elements are not equal\n")
+                }
+
+                contains := containsSel(test.got.node.Attr, element.node.Attr[0], "id") 
+                if contains == false {
+                    t.Errorf("element doesn't contain id\n") 
                 }
             }
         }) 

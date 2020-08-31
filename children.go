@@ -1,11 +1,8 @@
 package main // change it
 
 import (
-    "fmt"
     "golang.org/x/net/html"
 )
-
-var _ = fmt.Println
 
 func (e Element) FindAllChildren(limit int) []Element {
     var elements []Element
@@ -68,5 +65,19 @@ func (e Element) FindChildrenByElement(element string, limit int) []Element {
     return elements
 }
 
-//func (n *Element) FindChildById(id string) Element {}
-//
+func (e Element) FindChildById(id string) Element {
+    var element Element
+    
+    temp := e.node.FirstChild
+
+    for temp != nil {
+        contains := containsSel(temp.Attr, html.Attribute{"", "id", id}, "id")
+        if temp.Type == html.ElementNode && contains {
+            element = Element{temp}
+            break
+        }
+        temp = temp.NextSibling
+    }
+
+    return element 
+}
