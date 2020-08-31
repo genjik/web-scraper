@@ -1,10 +1,10 @@
-package main //change it
+package webscraper
 
 import (
     "golang.org/x/net/html"
     "strings"
-    "io"
     "sort"
+    "io"
 )
 
 type Element struct {

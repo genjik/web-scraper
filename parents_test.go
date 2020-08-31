@@ -1,10 +1,10 @@
-package main // change it 
+package webscraper
 
 import (
+    "golang.org/x/net/html"
     "testing"
     "strings"
     "fmt"
-    "golang.org/x/net/html"
 )
 
 var expectedOutputE []Element = []Element{

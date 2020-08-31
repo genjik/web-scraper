@@ -1,9 +1,9 @@
-package main
+package webscraper
 
 import (
+    "golang.org/x/net/html"
     "testing"
     "strings"
-    "golang.org/x/net/html"
     "fmt"
 )
 

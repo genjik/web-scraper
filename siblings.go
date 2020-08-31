@@ -1,12 +1,8 @@
-package main //change it
+package webscraper
 
 import (
-    "fmt"
     "golang.org/x/net/html"
 )
-
-var _ = fmt.Println
-
 
 func (e Element) FindAllSiblings(limit int) []Element {
     var elements []Element

@@ -1,4 +1,4 @@
-package main // change it
+package webscraper
 
 import (
     "golang.org/x/net/html"

@@ -1,8 +1,8 @@
-package main // change it
+package webscraper
 
 import (
-    "testing"
     "golang.org/x/net/html"
+    "testing"
     "fmt"
 )
 
