@@ -2,15 +2,88 @@ package main //change it
 
 import (
     "fmt"
+    "golang.org/x/net/html"
 )
 
 var _ = fmt.Println
 
 
-//func (n *Element) FindAllSiblings() []Element {}
-//
-//func (n *Element) FindSiblingById(id string) Element {}
-//
-//func (n *Element) FindSiblingsByClass(class string, limit int) []Element {}
-//
-//func (n *Element) FindSiblingsByElement(element string, limit int) []Element {}
+func (e Element) FindAllSiblings(limit int) []Element {
+    var elements []Element
+    
+    temp := e.node.Parent.FirstChild
+
+    for temp != nil { 
+        if limit == 0 {
+            break
+        }
+        if temp.Type == html.ElementNode && temp != e.node {
+            elements = append(elements, Element{temp})
+            limit -= 1
+        }
+        temp = temp.NextSibling
+    }
+
+    return elements
+}
+
+func (e Element) FindSiblingsByClass(class string, limit int) []Element {
+    var elements []Element
+
+    temp := e.node.Parent.FirstChild
+
+    for temp != nil { 
+        if limit == 0 {
+            break
+        }
+
+        contains := containsSel(temp.Attr, html.Attribute{"", "class", class}, "class")
+
+        if temp.Type == html.ElementNode && contains && temp != e.node {
+            elements = append(elements, Element{temp})
+            limit -= 1
+        }
+        temp = temp.NextSibling
+    }
+
+    return elements
+}
+
+func (e Element) FindSiblingsByElement(element string, limit int) []Element {
+    var elements []Element    
+
+    temp := e.node.Parent.FirstChild
+
+    for temp != nil {
+        if limit == 0 {
+            break
+        }
+
+        isEqual := compareTypeAndData(Element{temp}, Element{&html.Node{Type: html.ElementNode, Data: element}})
+
+        if temp.Type == html.ElementNode && isEqual && temp != e.node {
+            elements = append(elements, Element{temp})
+            limit -= 1
+        }
+        temp = temp.NextSibling
+    }
+
+    return elements
+}
+
+func (e Element) FindSiblingById(id string) Element {
+    var element Element
+    
+    temp := e.node.Parent.FirstChild
+
+    for temp != nil {
+        contains := containsSel(temp.Attr, html.Attribute{"", "id", id}, "id")
+        if temp.Type == html.ElementNode && contains && temp != e.node {
+            element = Element{temp}
+            break
+        }
+        temp = temp.NextSibling
+    }
+
+    return element 
+}

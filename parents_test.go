@@ -50,6 +50,7 @@ func TestGetParent(t *testing.T) {
         </body>
     </html>
     `)
+
     root, _ := GetRootElement(r)
 
     cases := []struct{
@@ -91,7 +92,7 @@ func TestGetParent(t *testing.T) {
 
             equal := compareTypeAndData(test.got, test.element); 
             if equal == false {
-                t.Errorf("Either Type or Data of two elements are not equal\n")
+                t.Errorf("Type or Data of two elements are not equal\n")
             }
         }) 
     }
