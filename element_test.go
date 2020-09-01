@@ -3,8 +3,143 @@ package webscraper
 import (
     "golang.org/x/net/html"
     "testing"
+    "strings"
     "fmt"
 )
+
+func TestData(t *testing.T) {
+    r := strings.NewReader(`
+    <html>
+        <head></head>
+        <body>
+            <div class="red">Hello from .red</div>
+            <div class="green">Hello from .green</div>
+            <div class="blue">
+                <div class="blue-child">Hello from .blue-child</div>
+            </div>
+            <div class="yellow"></div>
+        </body>
+    </html>
+    `)
+
+    root, _ := GetRootElement(r)
+
+    cases := []struct {
+        got string
+        expectedOut string
+    }{
+        {
+            root.FindChildrenByElement("body", 1)[0].
+                FindChildrenByClass("red", 1)[0].
+                    Data(),
+            "Hello from .red",
+        },
+        {
+            root.FindChildrenByElement("body", 1)[0].
+                FindChildrenByClass("green", 1)[0].
+                    Data(),
+            "Hello from .green",
+        },
+        {
+            root.FindChildrenByElement("body", 1)[0].
+                FindChildrenByClass("blue", 1)[0].
+                    FindChildrenByClass("blue-child", 1)[0].
+                        Data(),
+            "Hello from .blue-child", 
+        },
+        {
+            root.FindChildrenByElement("body", 1)[0].
+                FindChildrenByClass("yellow", 1)[0].
+                    Data(),
+            "", 
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
+            if test.got != test.expectedOut {
+                t.Errorf("got=%s, expected=%s\n", test.got, test.expectedOut)
+            }
+        })
+    }
+}
+
+func TestCompareTypeAndData(t *testing.T) {
+    cases := []struct {
+        e Element
+        e2 Element
+        expectedOut bool
+    }{
+        {
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "div",
+                },
+            },
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "div",
+                },
+            },
+            true,
+        },
+        {
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "div",
+                },
+            },
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "DIV",
+                },
+            },
+            true,
+        },
+        {
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "div",
+                },
+            },
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "span",
+                },
+            },
+            false,
+        },
+        {
+            Element{
+                &html.Node{
+                    Type: html.ElementNode,
+                    Data: "div",
+                },
+            },
+            Element{
+                &html.Node{
+                    Type: html.TextNode,
+                    Data: "div",
+                },
+            },
+            false,
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
+            if got := compareTypeAndData(test.e, test.e2); got != test.expectedOut {
+                t.Errorf("got=%t, expected=%t\n", got, test.expectedOut)
+            }
+        })
+    }
+}
 
 func TestContainsClass(t *testing.T) {
     cases := []struct {
@@ -259,83 +394,6 @@ func TestHasRepetition(t *testing.T) {
         t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
             if got := hasRepetition(test.val); got != test.expectedOut {
                 t.Errorf("got=%d, expected=%d\n", got, test.expectedOut)
-            }
-        })
-    }
-}
-
-func TestCompareTypeAndData(t *testing.T) {
-    cases := []struct {
-        e Element
-        e2 Element
-        expectedOut bool
-    }{
-        {
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "div",
-                },
-            },
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "div",
-                },
-            },
-            true,
-        },
-        {
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "div",
-                },
-            },
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "DIV",
-                },
-            },
-            true,
-        },
-        {
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "div",
-                },
-            },
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "span",
-                },
-            },
-            false,
-        },
-        {
-            Element{
-                &html.Node{
-                    Type: html.ElementNode,
-                    Data: "div",
-                },
-            },
-            Element{
-                &html.Node{
-                    Type: html.TextNode,
-                    Data: "div",
-                },
-            },
-            false,
-        },
-    }
-
-    for i, test := range cases {
-        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
-            if got := compareTypeAndData(test.e, test.e2); got != test.expectedOut {
-                t.Errorf("got=%t, expected=%t\n", got, test.expectedOut)
             }
         })
     }

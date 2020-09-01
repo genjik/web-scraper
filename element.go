@@ -22,6 +22,20 @@ func GetRootElement(r io.Reader) (*Element, error) {
     return &Element{root.FirstChild}, nil
 }
 
+func (e Element) Data() string {
+    temp := e.node
+
+    if temp.Type == html.ElementNode {
+        if temp.FirstChild != nil {
+            if temp.FirstChild.Type == html.TextNode {
+                return temp.FirstChild.Data
+            }
+        }
+    }
+
+    return ""
+}
+
 // Compares html.Node.Type and html.Node.Data of two elements
 func compareTypeAndData(e, e2 Element) bool {
     if e.node.Type != e2.node.Type {
