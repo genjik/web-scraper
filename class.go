@@ -6,9 +6,27 @@ import (
     "sort"
 )
 
+func createPseudoEl(tag string, attrs []string) Element {
+    if tag == "" {
+        return Element{}
+    }
+
+    validated := validateAttrs(attrs)
+
+    el := Element{
+        &html.Node{
+            Type: html.ElementNode,
+            Data: tag,
+            Attr: validated,
+        },
+    }
+
+    return el
+}
+
 // makes sure the len(slice)=even and there is no recurrence among [even] index
-func validateAttrs(attrs []string) []string {
-    var newAttrs []string 
+func validateAttrs(attrs []string) []html.Attribute {
+    var newAttrs []html.Attribute 
 
     if len(attrs) < 1 { 
         return newAttrs
@@ -38,44 +56,53 @@ func validateAttrs(attrs []string) []string {
         }
 
         if count < 1 {
-            newAttrs = append(newAttrs, attrs[i], attrs[i+1])
+            newAttrs = append(newAttrs, html.Attribute{Key: attrs[i], Val: attrs[i+1]})
         }
     }
 
     return newAttrs
 }
 
-func (e Element) contains(tag string, attrs []string) bool {
-    if e.node.Type != html.ElementNode {
+func (e Element) compareTo(e2 Element) bool {
+    if e != (Element{}) && e2 == (Element{}) ||
+       e == (Element{}) && e2 != (Element{}) {
         return false
     }
 
-    if strings.ToLower(e.node.Data) != strings.ToLower(tag) {
+    if e == (Element{}) && e2 == (Element{}) {
+        return true
+    }
+    
+    if e.node.Type != html.ElementNode || e2.node.Type != html.ElementNode {
         return false
     }
 
-    if (len(attrs) / 2) > len(e.node.Attr) {
+    if strings.ToLower(e.node.Data) != strings.ToLower(e2.node.Data) {
+        return false
+    }
+    
+    return compareAttrs(e.node.Attr, e2.node.Attr)
+}
+
+// The order matters! the first parameter has to be part of real html document
+func compareAttrs(attrs []html.Attribute, attrs2 []html.Attribute) bool {
+    if len(attrs2) > len(attrs) {
         return false
     }
 
-    if len(e.node.Attr) < 1 && len(attrs) > 1 {
+    if len(attrs) < 1 && len(attrs2) > 0 {
         return false
     }
 
     count := 0
-    for i:=0; i < len(attrs); i++ {
-        if i % 2 != 0 {
-            continue
-        }
-
-        for j:=0; j < len(e.node.Attr); j++ {
-            // if the attrs[i] == class, then check it differently
-            if attrs[i] == "class" {
-                if e.node.Attr[j].Key != "class" {
+    for i:=0; i < len(attrs2); i++ {
+        for j:=0; j < len(attrs); j++ {
+            if strings.ToLower(attrs2[i].Key) == "class" {
+                if strings.ToLower(attrs[j].Key) != "class" {
                     continue
                 }
 
-                res := containsClass(e.node.Attr[j].Val, attrs[i+1])
+                res := containsClass(attrs[j].Val, attrs2[i].Val)
                 if res == true {
                     count += 1
                     break
@@ -83,14 +110,15 @@ func (e Element) contains(tag string, attrs []string) bool {
                 continue
             }
 
-            if attrs[i] == e.node.Attr[j].Key && attrs[i+1] == e.node.Attr[j].Val {
+            if strings.ToLower(attrs2[i].Key) == strings.ToLower(attrs[j].Key) &&
+               strings.ToLower(attrs2[i].Val) == strings.ToLower(attrs[j].Val) {
                 count += 1 
                 break
             }
         }
     }
 
-    if count == (len(attrs) / 2) {
+    if count == len(attrs2) {
         return true
     }
 

@@ -6,42 +6,171 @@ import (
     "golang.org/x/net/html"
 )
 
+func TestCreatePseudoEl(t *testing.T) {
+    cases := []struct{
+        tag string
+        attrs []string
+        out Element
+    }{
+        {
+            "div",
+            []string{},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{},
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                    },
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red", "id", "special"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                        {Key: "id", Val: "special"},
+                    },
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red", "id"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                    },
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red", "class", "green"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                    },
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red", "id", "special", "class", "green"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                        {Key: "id", Val: "special"},
+                    },
+                },
+            },
+        },
+        {
+            "div",
+            []string{"class", "red", "id", "special", "src", "www.com"},
+            Element{
+                &html.Node{
+                    Data: "div",
+                    Type: html.ElementNode,
+                    Attr: []html.Attribute{
+                        {Key: "class", Val: "red"},
+                        {Key: "id", Val: "special"},
+                        {Key: "src", Val: "www.com"},
+                    },
+                },
+            },
+        },
+        {
+            "",
+            []string{"class", "red", "id", "special", "class", "green"},
+            Element{},
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("Case #%d\n", i), func(t *testing.T) {
+            got := createPseudoEl(test.tag, test.attrs)
+
+            if test.out.compareTo(got) == false {
+                t.Errorf("expected=%+v, got=%+v\n", test.out, got) 
+            }
+        })
+    }
+}
+
 func TestValidateAttrs(t *testing.T) {
     cases := []struct{
         a []string
-        out []string
+        out []html.Attribute
     }{
         {
             []string{},
-            []string{},
+            []html.Attribute{},
         },
         {
             []string{"class", "red"},
-            []string{"class", "red"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
         },
         {
             []string{"class", "red", "id", "special"},
-            []string{"class", "red", "id", "special"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special"},
+            },
+        },
+        {
+            []string{"class", "red", "id", "special", "src", "www.com"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special"},
+                {Key: "src", Val: "www.com"},
+            },
         },
         {
             []string{"class", "red", "id"},
-            []string{"class", "red"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
         },
         {
             []string{"class", "red", "class", "green"},
-            []string{"class", "red"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
         },
         {
             []string{"class", "red", "id", "special", "class", "green"},
-            []string{"class", "red", "id", "special"},
-        },
-        {
-            []string{"class", "red", "id", "special", "src", "www.com"},
-            []string{"class", "red", "id", "special", "src", "www.com"},
-        },
-        {
-            []string{"class", "red", "id", "special", "class", "green"},
-            []string{"class", "red", "id", "special"},
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special"},
+            },
         },
     }
 
@@ -49,14 +178,14 @@ func TestValidateAttrs(t *testing.T) {
         t.Run(fmt.Sprintf("Case #%d\n", i), func(t *testing.T) {
             got := validateAttrs(test.a)
 
-            if compareStr(test.out, got) == false {
+            if compareAttrs(test.out, got) == false {
                 t.Errorf("expected=%+v, got=%+v\n", test.out, got) 
             }
         })
     }
 }
 
-func TestContains(t *testing.T) {
+func TestCompareTo(t *testing.T) {
     elements := []Element{
         {
             &html.Node{
@@ -95,87 +224,89 @@ func TestContains(t *testing.T) {
 
     cases := []struct {
         el Element
-        tag string
-        validatedAttrs[]string
+        el2 Element
         out bool
     }{
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red"}),
+            createPseudoEl("div", []string{"class", "red"}),
             true,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "src", "link2"}),
+            createPseudoEl("div", []string{"class", "red", "src", "link2"}),
             true,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "id"}),
+            createPseudoEl("div", []string{"class", "red", "id"}),
             true,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "class"}),
+            createPseudoEl("div", []string{"class", "red", "class"}),
             true,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "class", "green"}),
+            createPseudoEl("div", []string{"class", "red", "class", "green"}),
             true,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "yellow"}),
+            createPseudoEl("div", []string{"href", "link", "class", "red", "src", "link2"}),
+            true,
+        },
+        {
+            Element{},
+            Element{},
+            true,
+        },
+        {
+            elements[0],
+            createPseudoEl("div", []string{"class", "yellow"}),
             false,
         },
         {
             elements[0],
-            "span",
-            validateAttrs([]string{"class", "red"}),
+            createPseudoEl("span", []string{"class", "red"}),
             false,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "href", "somewhere", "src", "also", "a", "b"}),
+            createPseudoEl("div", []string{"class", "red", "href", "somewhere", "src", "also", "a", "b"}),
             false,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"cl", "r", "hr", "s", "src", "olso", "a", "b"}),
+            createPseudoEl("div", []string{"cl", "r", "hr", "s", "src", "olso", "a", "b"}),
             false,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "href", "somewhere", "src", "olso"}),
+            createPseudoEl("div", []string{"class", "red", "href", "somewhere", "src", "olso"}),
             false,
         },
         {
             elements[1],
-            "div",
-            validateAttrs([]string{"class", "red"}),
+            createPseudoEl("div", []string{"class", "red"}),
             false,
         },
         {
             elements[0],
-            "div",
-            validateAttrs([]string{"class", "red", "href", "nolink"}),
+            createPseudoEl("div", []string{"class", "red", "href", "nolink"}),
+            false,
+        },
+        {
+            Element{},
+            createPseudoEl("div", []string{"class", "red", "href", "nolink"}),
             false,
         },
     }
 
     for i, test := range cases {
         t.Run(fmt.Sprintf("Case #%d\n", i), func(t *testing.T) {
-            got := test.el.contains(test.tag, test.validatedAttrs) 
+            got := test.el.compareTo(test.el2)
 
             if got != test.out {
                 t.Errorf("expected=%t, got=%t\n", test.out, got) 
@@ -184,8 +315,123 @@ func TestContains(t *testing.T) {
     }
 }
 
+func TestCompareAttrs(t *testing.T) {
+    cases := []struct{
+        attrs []html.Attribute    
+        attrs2 []html.Attribute
+        out bool
+    }{
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special-id"},
+                {Key: "src", Val: "link"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special-id"},
+                {Key: "src", Val: "link"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "special-id"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "claSs", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "Class", Val: "red"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "id", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "id", Val: "Red"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "iD", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "id", Val: "Red"},
+            },
+            true,
+        },
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "yellow"},
+            },
+            false,
+        },
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "yellow"},
+                {Key: "id", Val: "yellow"},
+            },
+            false,
+        },
+        {
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+            },
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "yellow"},
+            },
+            false,
+        },
+        {
+            []html.Attribute{
+            },
+            []html.Attribute{
+                {Key: "class", Val: "red"},
+                {Key: "id", Val: "yellow"},
+            },
+            false,
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("case #%d", i), func(t *testing.T) {
+            got := compareAttrs(test.attrs, test.attrs2); 
+            if got != test.out {
+                t.Errorf("got=%t, expected=%t\n", got, test.out)
+            }
+        })
+    }
+}
+
 func TestContainsClass(t *testing.T) {
-    cases := []struct {
+    cases := []struct{
         a string
         b string
         out bool
