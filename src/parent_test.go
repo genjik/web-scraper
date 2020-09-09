@@ -145,3 +145,115 @@ func TestFindParent(t *testing.T) {
         })
     }
 }
+
+func TestFindParents(t *testing.T) {
+    r := strings.NewReader(`
+        <html>
+            <head></head>
+            <body>
+                <div class="box" id="red"></div>
+
+                <div class="box" id="green">
+                    <div class="box" id="child-green">
+                        <div class="box" id="grand-child-green">
+                            <div class="box" id="grand-grand-child-green"></div>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>
+    `)
+
+    root, _ := GetRootElement(r)
+    
+    elements := []Element{
+        {
+            &html.Node{
+                Type: html.ElementNode,
+                Data: "div",
+                Attr: []html.Attribute{
+                    {Key: "class", Val: "box"},
+                    {Key: "id", Val: "grand-child-green"},
+                },
+            },
+        },
+        {
+            &html.Node{
+                Type: html.ElementNode,
+                Data: "div",
+                Attr: []html.Attribute{
+                    {Key: "class", Val: "box"},
+                    {Key: "id", Val: "child-green"},
+                },
+            },
+        },
+        {
+            &html.Node{
+                Type: html.ElementNode,
+                Data: "div",
+                Attr: []html.Attribute{
+                    {Key: "class", Val: "box"},
+                    {Key: "id", Val: "green"},
+                },
+            },
+        },
+        {
+            &html.Node{
+                Type: html.ElementNode,
+                Data: "body",
+            },
+        },
+    }
+    
+    cases := []struct {
+        out []Element
+        got []Element
+    }{
+        {
+            elements[:3],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("div", -1, "class", "box"),
+        },
+        {
+            elements[:1],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("div", 1, "class", "box"),
+        },
+        {
+            elements[:1],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("div", 1),
+        },
+        {
+            elements[3:4],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("body", 1),
+        },
+        {
+            elements[:0],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("span", -1),
+        },
+        {
+            elements[:0],
+            root.FindOne("div", true, "id", "grand-grand-child-green").
+                FindParents("span", 0, "class", "box"),
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("Case #%d\n", i), func(t *testing.T) {
+            if len(test.out) != len(test.got) {
+                t.Fatalf("len(test.out)=%d, len(test.got)=%d\n", len(test.out), len(test.got))
+            }
+
+            for j, el := range test.out {
+                t.Run(fmt.Sprintf("el #%d\n", j), func(t *testing.T) {
+                    if el.compareTo(test.got[j]) == false {
+                        t.Errorf("expected=%+v, got=%+v\n", test.out[j], test.got[j]) 
+                    }
+                })
+            }
+        })
+    }
+}
