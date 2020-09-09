@@ -49,4 +49,66 @@ func findOneR(e Element, pseudoEl Element) Element {
     return Element{}
 }
 
-//func (e Element) FindAll(sel selector, limit int, recursive bool) []Element {}
+
+func (e Element) FindAll(tag string, recursive bool, limit int, attrs ...string) []Element {
+    pseudoEl := createPseudoEl(tag, attrs)
+
+    if (e.node == nil) {
+        return []Element{}
+    }
+
+    temp := e.firstChild()
+
+    if recursive == true {
+        return findAllR(temp, pseudoEl, limit)
+    }
+
+    return findAll(temp, pseudoEl, limit)
+}
+
+func findAll(e Element, pseudoEl Element, limit int) []Element {
+    var elements []Element
+    temp := e
+
+    for temp != (Element{}) {
+        if limit == 0 {
+            break
+        }
+
+        if temp.compareTo(pseudoEl) == true {
+            elements = append(elements, temp)
+            limit -= 1
+        }
+
+        temp = temp.nextSibling()
+    }
+    return elements
+}
+
+func findAllR(e Element, pseudoEl Element, limit int) []Element {
+    var elements []Element
+    temp := e
+
+    for temp != (Element{}) {
+        if limit == 0 {
+            break
+        }
+
+        if temp.compareTo(pseudoEl) == true {
+            elements = append(elements, temp)
+            limit -= 1
+        }
+
+        if temp.firstChild() != (Element{}) {
+            found := findAllR(temp.firstChild(), pseudoEl, limit)
+            if len(found) > 0 {
+                elements = append(elements, found...) 
+                limit -= len(found)
+            }
+        }
+
+        temp = temp.nextSibling()
+    }
+
+    return elements
+}
