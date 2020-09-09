@@ -26,14 +26,8 @@ func (e Element) FindParents(tag string, limit int, attrs ...string) []Element {
         return []Element{}
     }
 
-    temp := e.parent()
-
-    return findParents(temp, pseudoEl, limit)
-}
-
-func findParents(e Element, pseudoEl Element, limit int) []Element {
     var elements []Element
-    temp := e
+    temp := e.parent()
 
     for temp != (Element{}) {
         if limit == 0 {
