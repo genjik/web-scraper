@@ -1,10 +1,10 @@
 package webscraper
 
 import (
-    "testing"
-    "fmt"
     "golang.org/x/net/html"
+    "testing"
     "strings"
+    "fmt"
 )
 
 func TestFindNextSibling(t *testing.T) {

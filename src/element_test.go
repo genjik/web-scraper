@@ -1,9 +1,9 @@
 package webscraper
 
 import (
+    "golang.org/x/net/html"
     "testing"
     "fmt"
-    "golang.org/x/net/html"
 )
 
 func TestCreatePseudoEl(t *testing.T) {

@@ -5,6 +5,8 @@ import (
     "sort"
 )
 
+// Returns true if two []string contains equal number of strings, and each
+// string from 1st slice equals to string from 2nd slice in ascending order
 func compareStr(s1, s2 []string) bool {
     if len(s1) != len(s2) {
         return false
@@ -22,6 +24,8 @@ func compareStr(s1, s2 []string) bool {
     return true
 }
 
+// Returns the number of times the same word occurs in the slice
+// e.g {"red", "red", "red"} = 2
 func hasRepetition(val []string) int {
     count := 0
     for i:=0; i < len(val); i++ {

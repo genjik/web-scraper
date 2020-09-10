@@ -1,10 +1,10 @@
 package webscraper
 
 import (
-    "testing"
-    "fmt"
     "golang.org/x/net/html"
+    "testing"
     "strings"
+    "fmt"
 )
 
 func TestFindParent(t *testing.T) {
@@ -135,6 +135,10 @@ func TestFindParent(t *testing.T) {
             root.FindOne("body", false).
                 FindParent("span"),
         },
+        {
+            Element{},
+            Element{}.FindParent("span"),
+        },
     }
 
     for i, test := range cases {
@@ -209,6 +213,7 @@ func TestFindParents(t *testing.T) {
         out []Element
         got []Element
     }{
+        // returns non-nil elements
         {
             elements[:3],
             root.FindOne("div", true, "id", "grand-grand-child-green").
@@ -229,6 +234,7 @@ func TestFindParents(t *testing.T) {
             root.FindOne("div", true, "id", "grand-grand-child-green").
                 FindParents("body", 1),
         },
+        // returns nil elements
         {
             elements[:0],
             root.FindOne("div", true, "id", "grand-grand-child-green").
@@ -238,6 +244,10 @@ func TestFindParents(t *testing.T) {
             elements[:0],
             root.FindOne("div", true, "id", "grand-grand-child-green").
                 FindParents("span", 0, "class", "box"),
+        },
+        {
+            elements[:0],
+            Element{}.FindParents("span", 0, "class", "box"),
         },
     }
 

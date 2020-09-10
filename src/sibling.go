@@ -1,5 +1,8 @@
 package webscraper
 
+// Traverses through sibling elements AFTER current element,
+// and returns element if it satisfies the searching parameters.
+// Otherwise, returns nil 
 func (e Element) FindNextSibling(tag string, attrs ...string) Element {
     pseudoEl := createPseudoEl(tag, attrs)
 
@@ -19,6 +22,9 @@ func (e Element) FindNextSibling(tag string, attrs ...string) Element {
     return Element{}
 }
 
+// Traverses through sibling elements AFTER current element,
+// and returns []Element that contains elements that satisfies the searching
+// parameters. Otherwise, returns nil 
 func (e Element) FindNextSiblings(tag string, limit int, attrs ...string) []Element {
     var elements []Element
     pseudoEl := createPseudoEl(tag, attrs)
@@ -45,6 +51,9 @@ func (e Element) FindNextSiblings(tag string, limit int, attrs ...string) []Elem
     return elements
 }
 
+// Traverses through sibling elements BEFORE current element,
+// and returns element if it satisfies the searching parameters.
+// Otherwise, returns nil 
 func (e Element) FindPrevSibling(tag string, attrs ...string) Element {
     pseudoEl := createPseudoEl(tag, attrs)
 
@@ -64,6 +73,9 @@ func (e Element) FindPrevSibling(tag string, attrs ...string) Element {
     return Element{}
 }
 
+// Traverses through sibling elements BEFORE current element,
+// and returns []Element that contains elements that satisfies the searching
+// parameters. Otherwise, returns nil 
 func (e Element) FindPrevSiblings(tag string, limit int, attrs ...string) []Element {
     var elements []Element
     pseudoEl := createPseudoEl(tag, attrs)

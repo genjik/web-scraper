@@ -2,16 +2,17 @@ package webscraper
 
 import (
     "golang.org/x/net/html"
-    "io"
     "strings"
     "sort"
+    "io"
 )
-
 
 type Element struct {
     node *html.Node
 }
 
+// Takes io.Reader parameter that contains html, parses it and returns
+// <html> tag as Element type
 func GetRootElement(r io.Reader) (*Element, error) {
     root, err := html.Parse(r)
 
@@ -22,6 +23,9 @@ func GetRootElement(r io.Reader) (*Element, error) {
     return &Element{root.FirstChild}, nil
 }
 
+// Returns pseudo-element with tag and attrs as element's tag name and
+// attributes respectively. It is used for comparison with the real html
+// elements.
 func createPseudoEl(tag string, attrs []string) Element {
     if tag == "" {
         return Element{}
@@ -40,7 +44,8 @@ func createPseudoEl(tag string, attrs []string) Element {
     return el
 }
 
-// makes sure the len(slice)=even and there is no recurrence among [even] index
+// Makes sure the len(attrs) == even number and there is no recurrence among
+// even index (that are supposed to be attribute names)
 func validateAttrs(attrs []string) []html.Attribute {
     var newAttrs []html.Attribute 
 
@@ -48,7 +53,6 @@ func validateAttrs(attrs []string) []html.Attribute {
         return newAttrs
     }
 
-    // if the len(attrs) == odd, remove last value
     if len(attrs) % 2 != 0 { 
         attrs = attrs[:len(attrs)-1]
     }
@@ -79,6 +83,8 @@ func validateAttrs(attrs []string) []html.Attribute {
     return newAttrs
 }
 
+// Returns true if two elements have the same tag and attributes.
+// The real element always has to be receiver, and pseudo-element the parameter
 func (e Element) compareTo(e2 Element) bool {
     if e != (Element{}) && e2 == (Element{}) ||
        e == (Element{}) && e2 != (Element{}) {
@@ -100,7 +106,7 @@ func (e Element) compareTo(e2 Element) bool {
     return compareAttrs(e.node.Attr, e2.node.Attr)
 }
 
-// The order matters! the first parameter has to be part of real html document
+// The order matters! The first parameter has to be part of real html element
 func compareAttrs(attrs []html.Attribute, attrs2 []html.Attribute) bool {
     if len(attrs2) > len(attrs) {
         return false
@@ -141,6 +147,8 @@ func compareAttrs(attrs []html.Attribute, attrs2 []html.Attribute) bool {
     return false
 }
 
+// The first parameter has to be from the real html Element (not pseudo one).
+// Immediately returns false if len(2nd parameter) > len(1st parameter).
 func containsClass(parsedClasses, newClasses string) bool {
     aClasses := strings.Split(parsedClasses, " ")
     bClasses := strings.Split(newClasses, " ")

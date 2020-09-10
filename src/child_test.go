@@ -166,6 +166,10 @@ func TestFindOne(t *testing.T) {
             root.FindOne("body", false).
                 FindOne("span", false),
         },
+        {
+            Element{},
+            Element{}.FindOne("span", false),
+        },
     }
 
     for i, test := range cases {
@@ -332,6 +336,10 @@ func TestFindAll(t *testing.T) {
         {
             elements[:0],
             root.FindAll("div", false, -1, "class", "box"),
+        },
+        {
+            elements[:0],
+            Element{}.FindAll("div", false, -1, "class", "box"),
         },
     }
 
