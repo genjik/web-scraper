@@ -13,14 +13,14 @@ type Element struct {
 
 // Takes io.Reader parameter that contains html, parses it and returns
 // <html> tag as Element type
-func GetRootElement(r io.Reader) (*Element, error) {
+func GetRootElement(r io.Reader) (Element, error) {
     root, err := html.Parse(r)
 
     if err != nil {
-        return nil, err
+        return Element{}, err
     }
 
-    return &Element{root.FirstChild}, nil
+    return Element{root.FirstChild}, nil
 }
 
 // Returns pseudo-element with tag and attrs as element's tag name and
