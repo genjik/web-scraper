@@ -41,8 +41,12 @@ func (e Element) FindPrevSiblings(tag string, limit int, attrs ...string) []Elem
 func (e Element) FindNextSiblings(tag string, limit int, attrs ...string) []Element
 ```
 
-**Parameters:**
-`tag string` The tag name of element. E.g html/head/body/div/span/h1 and etc
-`attrs ...string` Contains the attributes of element that method should search for. E.g {"class", "className"}. As many arguments as neccesary can be passed to the parameter, or it can be ommited at all
-`recursive bool` "true" tells the method to look for children elements of children elements and so on. "false" tells to look only for first child element and all of its sibling elements
+**Parameters:**  
+
+`tag string` The tag name of element. E.g html/head/body/div/span/h1 and etc  
+
+`attrs ...string` Contains the attributes of element that method should search for. E.g {"class", "className"}. As many arguments as neccesary can be passed to the parameter, or it can be ommited at all  
+
+`recursive bool` "true" tells the method to look for children elements of children elements and so on. "false" tells to look only for first child element and all of its sibling elements  
+
 `limit int` The number is used to limit the length of final result. -1 means no limit
