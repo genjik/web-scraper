@@ -4,42 +4,15 @@ import (
     "golang.org/x/net/html"
 )
 
-// Returns first parent element that is ElementNode. Otherwise, returns nil
-func (e Element) parent() Element {
-    temp := e.node.Parent
-    return traverse(temp, getParent)
-}
-
-// Returns first child element that is ElementNode. Otherwise, returns nil
-func (e Element) firstChild() Element {
-    temp := e.node.FirstChild
-    return traverse(temp, getNextSibling)
-}
-
-// Returns first previous sibling element that is ElementNode.
-// Otherwise, returns nil
-func (e Element) prevSibling() Element {
-    temp := e.node.PrevSibling
-    return traverse(temp, getPrevSibling)
-}
-
-// Returns first next sibling element that is ElementNode.
-// Otherwise, returns nil
-func (e Element) nextSibling() Element {
-    temp := e.node.NextSibling
-    return traverse(temp, getNextSibling)
-}
-
-func getParent(n *html.Node) *html.Node {
+func parent(n *html.Node) *html.Node {
     return n.Parent
 }
-func getPrevSibling(n *html.Node) *html.Node {
+func prevSibling(n *html.Node) *html.Node {
     return n.PrevSibling
 }
-func getNextSibling(n *html.Node) *html.Node {
+func nextSibling(n *html.Node) *html.Node {
     return n.NextSibling
 }
-
 func traverse(temp *html.Node, t func(n *html.Node) *html.Node) Element {
     for temp != nil {
         if temp.Type == html.ElementNode && temp.Data != "" {
@@ -51,40 +24,68 @@ func traverse(temp *html.Node, t func(n *html.Node) *html.Node) Element {
     return Element{}
 }
 
-func nextSibling(e Element) Element {
-    temp := e.node.NextSibling
-    return traverse(temp, getNextSibling)
-}
-func prevSibling(e Element) Element {
-    temp := e.node.PrevSibling
-    return traverse(temp, getPrevSibling)
-}
-func parent(e Element) Element {
+// Returns first parent element that is ElementNode. Otherwise, returns nil
+func (e Element) parent() Element {
     temp := e.node.Parent
-    return traverse(temp, getParent)
+    return traverse(temp, parent)
 }
 
-func findElement(e Element, getSibling func(e Element) Element, tag string, attrs []string) Element {
+// Returns first child element that is ElementNode. Otherwise, returns nil
+func (e Element) firstChild() Element {
+    temp := e.node.FirstChild
+    return traverse(temp, nextSibling)
+}
+
+// Returns first previous sibling element that is ElementNode.
+// Otherwise, returns nil
+func (e Element) prevSibling() Element {
+    temp := e.node.PrevSibling
+    return traverse(temp, prevSibling)
+}
+
+// Returns first next sibling element that is ElementNode.
+// Otherwise, returns nil
+func (e Element) nextSibling() Element {
+    temp := e.node.NextSibling
+    return traverse(temp, nextSibling)
+}
+
+
+func getNextSibling(e Element) Element {
+    temp := e.node.NextSibling
+    return traverse(temp, nextSibling)
+}
+func getPrevSibling(e Element) Element {
+    temp := e.node.PrevSibling
+    return traverse(temp, prevSibling)
+}
+func getParent(e Element) Element {
+    temp := e.node.Parent
+    return traverse(temp, parent)
+}
+
+func (e Element) findElement(getSibling func(e Element) Element, tag string, attrs []string) Element {
     pseudoEl := createPseudoEl(tag, attrs)
 
     if (e.node == nil) {
         return Element{}
     }
 
-    // Either prevSibling() or nextSibling()
+    // getParent() or getPrevSibling() or getNextSibling()
     temp := getSibling(e)
 
     for temp != (Element{}) {
         if temp.compareTo(pseudoEl) == true {
             return temp
         }
+        // getParent() or getPrevSibling() or getNextSibling()
         temp = getSibling(temp)
     }
 
     return Element{}
 }
 
-func findElements(e Element, getSibling func(e Element) Element, tag string, limit int, attrs []string) []Element {
+func (e Element) findElements(getSibling func(e Element) Element, tag string, limit int, attrs []string) []Element {
     var elements []Element
     pseudoEl := createPseudoEl(tag, attrs)
 
@@ -92,6 +93,7 @@ func findElements(e Element, getSibling func(e Element) Element, tag string, lim
         return elements
     }
 
+    // getParent() or getPrevSibling() or getNextSibling()
     temp := getSibling(e)
 
     for temp != (Element{}) {
@@ -104,6 +106,7 @@ func findElements(e Element, getSibling func(e Element) Element, tag string, lim
             limit -= 1
         }
 
+        // getParent() or getPrevSibling() or getNextSibling()
         temp = getSibling(temp)
     }
 
