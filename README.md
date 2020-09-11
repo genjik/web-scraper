@@ -1,4 +1,5 @@
 # Web-scraper library for Golang
+[![Build status](https://travis-ci.org/genjik/web-scraper.svg?branch=master)](https://travis-ci.org/github/genjik/web-scraper)
 
 ## Installation
 The go version has to be with go modules.
