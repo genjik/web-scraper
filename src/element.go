@@ -12,7 +12,7 @@ type Element struct {
 }
 
 // Takes io.Reader parameter that contains html, parses it and returns
-// <html> tag as Element type
+// first-found element type that is html.ElementNode
 func GetRootElement(r io.Reader) (Element, error) {
     root, err := html.Parse(r)
 
@@ -20,7 +20,18 @@ func GetRootElement(r io.Reader) (Element, error) {
         return Element{}, err
     }
 
-    return Element{root.FirstChild}, nil
+    for root.Type != html.ElementNode {
+        switch root.Type {
+        case html.DocumentNode:
+            root = root.FirstChild
+        case html.CommentNode:
+            root = root.NextSibling
+        case html.DoctypeNode:
+            root = root.NextSibling
+        }
+    }
+
+    return Element{root}, nil
 }
 
 // Returns pseudo-element with tag and attrs as element's tag name and
