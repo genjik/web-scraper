@@ -34,6 +34,25 @@ func GetRootElement(r io.Reader) (Element, error) {
     return Element{root}, nil
 }
 
+func (e Element) GetText() string {
+    var result strings.Builder
+    if e.node == nil {
+        return ""
+    }
+
+    temp := e.node.FirstChild
+
+    for temp != nil {
+        if temp.Type == html.TextNode {
+            result.WriteString(temp.Data)
+        }
+
+        temp = temp.NextSibling
+    }
+
+    return result.String()
+}
+
 // Returns pseudo-element with tag and attrs as element's tag name and
 // attributes respectively. It is used for comparison with the real html
 // elements.

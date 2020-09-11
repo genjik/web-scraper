@@ -3,6 +3,7 @@ package webscraper
 import (
     "golang.org/x/net/html"
     "testing"
+    "strings"
     "fmt"
 )
 
@@ -118,6 +119,56 @@ func TestCreatePseudoEl(t *testing.T) {
 
             if test.out.compareTo(got) == false {
                 t.Errorf("expected=%+v, got=%+v\n", test.out, got) 
+            }
+        })
+    }
+}
+
+func TestGetText(t *testing.T) {
+    r := strings.NewReader(`
+        <html>
+            <head></head>
+            <body>
+                <div id="red">Hello World!</div>
+                <div id="green">Hello<i>World</i></div>
+                <div id="blue">Hello<i>World</i>!</div>
+                <div id="yellow">Hello World1!<div></div>Hello World2!</div>
+            </body>
+        </html>
+    `)
+
+    root, _ := GetRootElement(r)
+
+    cases := []struct{
+        got string
+        out string
+    }{
+        {
+            root.FindOne("div", true, "id", "red").GetText(),
+            "Hello World!",
+        },
+        {
+            root.FindOne("div", true, "id", "green").GetText(),
+            "Hello",
+        },
+        {
+            root.FindOne("div", true, "id", "blue").GetText(),
+            "Hello!",
+        },
+        {
+            root.FindOne("div", true, "id", "yellow").GetText(),
+            "Hello World1!Hello World2!",
+        },
+        {
+            root.FindOne("div", true, "id", "nope").GetText(),
+            "",
+        },
+    }
+
+    for i, test := range cases {
+        t.Run(fmt.Sprintf("Case #%d\n", i), func(t *testing.T) {
+            if test.got != test.out {
+                t.Errorf("expected=%s, got=%s\n", test.out, test.got) 
             }
         })
     }
