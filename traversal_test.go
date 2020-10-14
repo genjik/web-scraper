@@ -37,7 +37,7 @@ func TestParent(t *testing.T) {
                     },
                 },
             },
-            root.FindOne("div", true, "class", "green").parent(),
+            root.FindOne("div", true, "class", "green").Parent(),
         },
         {
             Element{
@@ -46,7 +46,7 @@ func TestParent(t *testing.T) {
                     Type: html.ElementNode,
                 },
             },
-            root.FindOne("div", true, "class", "box").parent(),
+            root.FindOne("div", true, "class", "box").Parent(),
         },
         {
             Element{
@@ -55,11 +55,11 @@ func TestParent(t *testing.T) {
                     Type: html.ElementNode,
                 },
             },
-            root.FindOne("body", false).parent(), 
+            root.FindOne("body", false).Parent(), 
         },
         {
             Element{},
-            root.parent(),
+            root.Parent(),
         },
     }
 

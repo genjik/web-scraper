@@ -25,7 +25,7 @@ func traverse(temp *html.Node, t func(n *html.Node) *html.Node) Element {
 }
 
 // Returns first parent element that is ElementNode. Otherwise, returns nil
-func (e Element) parent() Element {
+func (e Element) Parent() Element {
     temp := e.node.Parent
     return traverse(temp, parent)
 }
